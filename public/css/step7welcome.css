@@ -1,0 +1,202 @@
+@charset "utf-8";
+
+.form {
+  display: flex; /* フレックスボックスとして表示 */
+  flex-wrap: wrap; /* 要素が多すぎる場合は折り返す */
+  align-items: center; /* アイテムを垂直方向に中央揃え */
+  gap: 10px; /* フォーム間に少しスペースを追加 */
+}
+
+.form form {
+  display: flex; /* 各フォーム内もフレックスボックスとして表示 */
+  flex-wrap: wrap; /* 内部の要素が多すぎる場合は折り返す */
+  align-items: center; /* 内部のアイテムを垂直方向に中央揃え */
+}
+
+.form input[type="search"],
+.form select {
+  flex: 1; /* フレックスアイテムに柔軟に幅を取らせる */
+  margin-right: 8px; /* 右のアイテムとの間にマージンを設ける */
+}
+
+.form input[type="submit"] {
+  margin-right: 8px; /* ボタンとの間にマージンを設ける */
+}
+
+/* レスポンシブデザイン: 小さなデバイスで縦並びに変更する */
+@media (max-width: 768px) {
+  .form {
+      flex-direction: column; /* フレックス方向を縦に */
+  }
+
+  .form form {
+      width: 100%; /* 各フォームの幅を100%に */
+      margin-bottom: 10px; /* フォーム間の下マージン */
+  }
+
+  .form input[type="search"],
+  .form select,
+  .form input[type="submit"],
+  .form button {
+      width: 100%; /* 全ての要素の幅を100%にして、それぞれが一行を占めるようにする */
+      margin-right: 0; /* 右マージンを取り除く */
+  }
+}
+
+
+span{
+  color:red;
+}
+
+.title{
+  padding-left: 20px ;
+  padding-top: 20px ;
+
+}
+
+/* テーブルの基本スタイル */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+/* テーブルのヘッダー */
+.header{
+  background-color: #f2f2f2;
+  color: #333;
+  padding: 10px;
+  text-align: left;
+}
+
+/* テーブルのセル */
+.table td{
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+/* テーブルのヘッダーのセル */
+.header th {
+  font-weight: bold;
+}
+
+/* テーブルの行をホバーしたときのスタイル */
+.tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* ボタンの基本スタイル */
+.button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+}
+
+/* 購入ボタンのスタイル */
+.detail {
+  background-color: #00FFFF;
+  color: black;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none; 
+}
+
+/* 削除ボタンのスタイル */
+.button-delete {
+  background-color: #f44336;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none; 
+}
+
+.button-create {
+  background-color: #FFCC99;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  float:right;
+  text-decoration: none; 
+}
+
+/* ページネーションコンテナ */
+.pagination {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* ページネーションアイテム */
+.page-item {
+  margin: 0 5px;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+/* アクティブなページネーションアイテム */
+.page-item.active {
+  background-color: #0d6efd;
+  color: white;
+  border-color: #0d6efd;
+}
+
+/* ページネーションアイテムホバー */
+.page-item:hover {
+  background-color: #e2e6ea;
+}
+
+.form {
+  width: 100%;
+  margin: 0 auto;
+
+  padding: 10px;
+  padding-left : 250px;
+  padding-top : 30px;
+  padding-top : 30px;
+
+  margin-right: 10px;
+  border-radius: 4px;
+}
+
+.form-container {
+  max-width: 400px;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.confirm-container {
+  max-width: 400px;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.create {
+  max-width: 400px;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
