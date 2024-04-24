@@ -37,6 +37,32 @@ return new class extends Migration
             $table->bigInteger('product_id');
             $table->timestamps(); 
         });
+
+        //ここから記述自由
+        $qb = \DB::table('companies');
+        $insert = [
+            [
+                'id' => null,
+                'company_name' => '伊藤園',
+
+            ],
+            [
+                'id' => null,
+                'company_name' => 'スターバックス',
+            ],
+            [
+                'id' => null,
+                'company_name' => 'りんご製菓',
+
+            ],
+            [
+                'id' => null,
+                'company_name' => 'Coca-Cola',
+
+            ]
+        ];
+        $qb->insert($insert);
+
     }
 
     /**
