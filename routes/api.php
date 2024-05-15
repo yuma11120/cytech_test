@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\SaleController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -17,3 +17,11 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::post('/sales', [App\Http\Controllers\SaleController::class, 'purchase']);
+Route::get('/create', [App\Http\Controllers\SaleController::class, 'create']);
+
+//Route::middleware(['middleware' => 'api'])->group(function () {
+    Route::post('/sales', [App\Http\Controllers\SaleController::class, 'purchase']);
+    Route::get('/create', [App\Http\Controllers\SaleController::class, 'create']);
+//});

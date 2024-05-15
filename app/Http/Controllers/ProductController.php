@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File; // Fileファサードを使用
 use Illuminate\Support\Facades\Log; // 必ずLogファサードをuse宣言
+use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
@@ -19,44 +20,102 @@ class ProductController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {//商品一覧画面
+    {
+        // 商品一覧画面
         $keyword = $request->input('keyword');
         $company_id = $request->input('company_id');
-        // すべてのメーカーを取得
-        $companies = Company::all(); 
-    
-        // プロダクトクエリビルダーを取得
-        $query = Product::query();
-    
-        // キーワードが入力されていたら商品名とメーカー名で絞り込む
-        if ($keyword) {
-            $query->where('product_name', 'like', "%{$keyword}%")
-                ->orWhereHas('company', function ($q) use ($keyword) {
-                    $q->where('company_name', 'like', "%{$keyword}%");
+        $minPrice = $request->input('min_price'); // 最低価格の取得
+        $maxPrice = $request->input('max_price'); // 最高価格の取得
+        $minStock = $request->input('min_stock'); // 最低在庫数の取得
+        $maxStock = $request->input('max_stock'); // 最高在庫数の取得
+
+        
+
+        try {
+
+            $validator = Validator::make($request->all(), [
+                'min_price' => 'nullable|numeric|min:0',
+                'max_price' => 'nullable|numeric|min:0|gte:min_price',
+                'min_stock' => 'nullable|numeric|min:0',
+                'max_stock' => 'nullable|numeric|min:0|gte:min_stock',
+            ], [
+                'max_price.gte' => '最高価格は最低価格以上である必要があります。',
+                'max_stock.gte' => '最高在庫数は最低在庫数以上である必要があります。'
+            ]);
+        
+            if ($validator->fails()) {
+                return redirect('/index')
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+        
+            // バリデーション
+            $request->validate([
+                'sort' => 'in:stock,price',
+                'direction' => 'in:asc,desc',
+                'min_price' => 'nullable|numeric|min:0',
+                'max_price' => 'nullable|numeric|min:0',
+                'min_stock' => 'nullable|numeric|min:0', // 最低在庫数のバリデーション
+                'max_stock' => 'nullable|numeric', // 最高在庫数のバリデーション
+            ]);
+            $companies = Company::all(); 
+            $query = Product::query();
+
+            if ($request->has('sort') && $request->has('direction')) {
+                $sort = $request->query('sort');
+                $direction = $request->query('direction');
+                $query->orderBy($sort, $direction);
+            } else {
+                $query->orderBy('id', 'asc');
+            }
+
+            // 各検索条件の適用
+            if ($keyword) {
+                $query->where(function($query) use ($keyword) {
+                    $query->where('product_name', 'like', "%{$keyword}%")
+                        ->orWhereHas('company', function ($q) use ($keyword) {
+                            $q->where('company_name', 'like', "%{$keyword}%");
+                        });
                 });
-        }
+            }else{
+                if ($company_id) {
+                    $query->whereHas('company', function ($q) use ($company_id) {
+                        $q->where('id', $company_id);
+                    });
+                }
     
-        // メーカーIDが選択されていたら絞り込む
-        if ($company_id) {
-            $query->whereHas('company', function ($q) use ($company_id) {
-                $q->where('id', $company_id);
-            });
-        }
+                if ($minPrice !== null) {
+                    $query->where('price', '>=', $minPrice);
+                }
     
-        // ページネーションを使って結果を取得
-        $products = $query->paginate(4);
+                if ($maxPrice !== null) {
+                    $query->where('price', '<=', $maxPrice);
+                }
     
-        // リクエストされた検索条件をページネーションリンクに引き継ぐ
-        if ($keyword) {
-            $products->appends(['keyword' => $keyword]);
-        }
-        if ($company_id) {
-            $products->appends(['company_id' => $company_id]);
-        }
+                if ($minStock !== null) {
+                    $query->where('stock', '>=', $minStock);
+                }
     
-        // ビューに変数を渡す
-        return view('product.index', compact('products', 'companies'));
+                if ($maxStock !== null) {
+                    $query->where('stock', '<=', $maxStock);
+                }
+            }
+            
+            $products = $query->paginate(4);
+
+            $products->appends($request->only(['keyword', 'company_id', 'min_price', 'max_price', 'min_stock', 'max_stock']));
+
+            if ($request->ajax()) {
+                return view('partials.product_table', compact('products'));
+            }
+
+            return view('product.index', compact('products', 'companies'));
+        } catch (\Exception $e) {
+            Log::error('商品一覧の取得に失敗しました。', ['error' => $e->getMessage()]);
+            return response()->json(['error' => '内部サーバーエラーが発生しました。'], 500);
+        }
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -200,36 +259,15 @@ class ProductController extends Controller
     {
         try {
             $product = Product::findOrFail($id);
-            // 画像ファイルがある場合は、それも削除
-            if ($product->img_path) {
-                // Storageを使用してファイルが存在するか確認し、存在する場合は削除
-                if (Storage::disk('public')->exists($product->img_path)) {
-                    Storage::disk('public')->delete($product->img_path);
-                }
+            if ($product->img_path && Storage::disk('public')->exists($product->img_path)) {
+                Storage::disk('public')->delete($product->img_path);
             }
             $product->delete();
-            
-            return redirect()->route('product.index')->with('success', '商品が正常に削除されました。');
+
+            return response()->json(['success' => '商品が正常に削除されました。']);
         } catch (\Exception $e) {
             \Log::error($e->getMessage());
-            return back()->withErrors('削除中にエラーが発生しました。もう一度試してください。');
+            return response()->json(['error' => '削除中にエラーが発生しました。もう一度試してください。'], 500);
         }
-    }
-
-   // public function destroy($id)
-   // {
-   //    DB::beginTransaction(); // トランザクションの開始
-   //     try {
-   //         $product = Product::findOrFail($id);
-   //         $this->deleteImage($product->img_path); // 画像削除を専用メソッドに委ねる
-   //         $product->delete();
-            
-   //         DB::commit(); // トランザクションをコミット
-   //         return redirect()->route('product.index')->with('success', '商品が正常に削除されました。');
-   //     } catch (\Exception $e) {
-   //         DB::rollBack(); // エラーが発生した場合はロールバック
-   //         \Log::error($e->getMessage());
-   //         return back()->withErrors('削除中にエラーが発生しました。もう一度試してください。');
-   //     }
-   // }
+}
 }

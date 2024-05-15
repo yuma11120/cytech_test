@@ -12,7 +12,7 @@ class Product extends Model
 
     protected $table = 'products';
     protected $primaryKey = 'id';
-    protected $fillable = ['product_name', 'price', 'stock', 'company_name', 'comment', 'img_path'];
+    protected $fillable = ['product_name', 'price', 'stock', 'company_name', 'comment', 'img_path','company_id'];
 
 
     public function getData(){
@@ -30,7 +30,7 @@ class Product extends Model
         return $this->belongsTo(Company::class);
     }
 
-    public function sales()
+    public function sale()
     {
         return $this->hasMany(Sale::class);
     }

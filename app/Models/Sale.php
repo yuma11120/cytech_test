@@ -10,8 +10,8 @@ class Sale extends Model
     use HasFactory;
     protected $table = 'sales';
     protected $primaryKey = 'id';
-    protected $fillable = ['product_id'];
-
+    protected $fillable = ['product_id','company_id'];
+    protected $dates =  ['created_at', 'updated_at'];
 
     public function getData(){
         $data = Sale::table($this->table)->get();
@@ -27,4 +27,5 @@ class Sale extends Model
     {
         return $this->belongsTo(Product::class);
     }
+    
 }

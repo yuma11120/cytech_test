@@ -2,6 +2,9 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Support\Facades\Log;
+
+
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 
@@ -47,4 +50,29 @@ class Handler extends ExceptionHandler
             //
         });
     }
+
+    //エラーハンドリング
+    public function render($request, Throwable $exception)
+    {
+        if ($exception instanceof CustomException) {
+            return response()->json(['error' => 'カスタムエラーが発生しました'], 400);
+        }
+
+        return parent::render($request, $exception);
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json($validator->errors(), 422));
+    }
+
+    public function report(Throwable $exception)
+    {
+        if ($exception instanceof SpecificException) {
+            // 特定のアクションを実行
+        }
+
+        parent::report($exception);
+    }
+
 }

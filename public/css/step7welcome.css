@@ -1,5 +1,12 @@
 @charset "utf-8";
 
+
+.formContent form{
+  display: flex;
+  margin-left: 20px; /* 左からのマージンを20pxに設定 */
+  
+}
+
 .form {
   display: flex; /* フレックスボックスとして表示 */
   flex-wrap: wrap; /* 要素が多すぎる場合は折り返す */
@@ -41,7 +48,9 @@
       width: 100%; /* 全ての要素の幅を100%にして、それぞれが一行を占めるようにする */
       margin-right: 0; /* 右マージンを取り除く */
   }
+  
 }
+
 
 
 span{
@@ -131,39 +140,51 @@ span{
   text-decoration: none; 
 }
 
-/* ページネーションコンテナ */
 .pagination {
   display: flex;
-  justify-content: center;
-  padding: 20px;
+  list-style: none;
+  justify-content: center; /* 中央揃え */
+  padding: 0;
 }
 
-/* ページネーションアイテム */
-.page-item {
-  margin: 0 5px;
-  padding: 5px 10px;
-  border: 1px solid #ddd;
-  cursor: pointer;
+.pagination li {
+  margin: 0 3px; /* マージンを減らす */
 }
 
-/* アクティブなページネーションアイテム */
-.page-item.active {
-  background-color: #0d6efd;
-  color: white;
-  border-color: #0d6efd;
+.pagination a {
+  color: #007bff;
+  padding: 3px 8px; /* パディングを減らす */
+  text-decoration: none;
+  border: 1px solid #dee2e6;
+  background-color: #fff;
+  font-size: 12px; /* フォントサイズを小さく */
 }
 
-/* ページネーションアイテムホバー */
-.page-item:hover {
-  background-color: #e2e6ea;
+.pagination li.active a {
+  color: #fff;
+  background-color: #007bff;
+  border-color: #007bff;
 }
+
+.pagination li.disabled a {
+  color: #6c757d;
+  pointer-events: none;
+  background-color: #e9ecef;
+}
+
+.pagination a:hover {
+  color: #0056b3;
+  background-color: #e9ecef;
+  border-color: #dee2e6;
+}
+
 
 .form {
   width: 100%;
   margin: 0 auto;
 
   padding: 10px;
-  padding-left : 250px;
+  padding-left : 10px;
   padding-top : 30px;
   padding-top : 30px;
 
@@ -199,4 +220,19 @@ span{
   border-radius: 5px;
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+th[data-sort] {
+  cursor: pointer;
+}
+
+th[data-sort]:hover {
+  background-color: #f0f0f0;
+}
+
+th.asc:after {
+  content: "\25B2"; /* 小さな上向き矢印 */
+}
+th.desc:after {
+  content: "\25BC"; /* 小さな下向き矢印 */
 }
