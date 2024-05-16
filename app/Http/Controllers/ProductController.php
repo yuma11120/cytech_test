@@ -14,6 +14,12 @@ use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
+    protected $product;
+
+    public function __construct(Product $product)
+    {
+        $this->product = $product;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -266,8 +272,9 @@ class ProductController extends Controller
 
             return response()->json(['success' => '商品が正常に削除されました。']);
         } catch (\Exception $e) {
-            \Log::error($e->getMessage());
-            return response()->json(['error' => '削除中にエラーが発生しました。もう一度試してください。'], 500);
+            Log::error($e->getMessage());
+            return response()->json(['error' => '削除中にエラーが発生しました。もう一度試してください。', 'exception' => $e->getMessage()], 500);
         }
-}
+    }
+
 }

@@ -30,16 +30,16 @@
             <h1 class = 'title'>商品一覧画面</h1>
             <div class="form">
                 <div class = 'formContent'>
-                    <form action="{{ route('product.index') }}" method="GET"><p>キーワード：</p>
+                    <form action="{{ route('product.index') }}" id="keywordForm"  method="GET"><p>キーワード：</p>
                         <input type="search" name="keyword" placeholder="検索" class="input-text" />
                         <input type="submit" id="search" value="検索" class="input" />
                     </form>
                 </div>
                 <div class = 'formContent'>
-                    <form id="searchForm" action="{{ route('product.index') }}" method="GET">
+                    <form id="companyForm" action="{{ route('product.index') }}" method="GET">
                         <p>メーカー名：</p>
                         <select name="company_id" class="select">
-                            <option>メーカー名を検索</option>
+                            <option value=""></option>
                             @foreach($companies as $company)
                                 <option value="{{ $company->id }}"{{ request('company_id') == $company->id ? ' selected' : '' }}>{{ $company->company_name }}</option>
                             @endforeach
@@ -48,7 +48,7 @@
                     </form>
                 </div>
                 <div class = 'formContent'>
-                    <form action="{{ route('product.index') }}" method="GET" onsubmit="return validateForm()">
+                    <form action="{{ route('product.index') }}" id="priceForm" method="GET" onsubmit="return validateForm()">
                         <p>最低価格：</p>
                         <input type="number" id="min_price" name="min_price" value="{{ request('min_price') }}" class="input-text" placeholder="最低価格" />
                         <p>最高価格：</p>
@@ -57,7 +57,7 @@
                     </form>
                 </div>
                 <div class = 'formContent'>
-                    <form action="{{ route('product.index') }}" method="GET" onsubmit="return validateForm()">
+                    <form action="{{ route('product.index') }}" id="stockForm" method="GET" onsubmit="return validateForm()">
                         <p>最低在庫：</p>
                         <input type="number" id="min_stock" name="min_stock" value="{{ request('min_stock') }}" class="input-text" placeholder="最低在庫数"/>
                         <p>最高在庫：</p>
@@ -86,20 +86,20 @@
                     <tbody>
                         @foreach ($products as $product)
                             <tr>
-                            <td>{{ $product->id }}</td>
-                            <td><img src="{{ asset('images/' . $product->img_path) }}" alt="商品画像" style="width: 30px; "> <!-- 画像の幅を150pxに設定 -->
-                            <td>{{ $product->product_name }}</td>
-                            <td>{{ $product->price }}</td>
-                            <td>{{ $product->stock }}</td>
-                            <td>{{ $product->company->company_name }}</td>
-                            <td ><a href="{{ route('product.show', ['id'=>$product->id]) }}" class = 'detail'>詳細</a></td>
-                            <td>
-                                <form action="{{ route('product.destroy', ['id'=>$product->id]) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class='button-delete' type="submit" data-id="{{ $product->id }}">削除</button>
-                                </form>
-                            </td>
+                                <td>{{ $product->id }}</td>
+                                <td><img src="{{ asset('images/' . $product->img_path) }}" alt="商品画像" style="width: 30px; "> <!-- 画像の幅を150pxに設定 -->
+                                <td>{{ $product->product_name }}</td>
+                                <td>{{ $product->price }}</td>
+                                <td>{{ $product->stock }}</td>
+                                <td>{{ $product->company->company_name }}</td>
+                                <td ><a href="{{ route('product.show', ['id'=>$product->id]) }}" class = 'detail'>詳細</a></td>
+                                <td>
+                                    <form action="{{ route('product.destroy', ['id'=>$product->id]) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="button-delete" type="submit" data-id="{{ $product->id }}">削除</button>
+                                    </form>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>

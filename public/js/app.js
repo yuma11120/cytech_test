@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    $('#searchForm').on('submit', function(e) {
+    $('#companyForm').on('submit', function(e) {
         e.preventDefault();  // 標準のフォーム送信をキャンセル
 
         var formData = $(this).serialize();  // フォームのデータをシリアライズ
@@ -74,42 +74,71 @@ $(document).ready(function() {
 });
 
 $(document).ready(function() {
-    // CSRFトークンのセットアップ
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-
-    $('.button-delete').on('click', function(e) {
-        e.preventDefault();
-        var productId = $(this).data('id');
-        var productRow = $(this).closest('tr'); // 商品がリストされている行を特定
-
-            $.ajax({
-                url: '/cytech_test/public/destroy/' + productId, // URLを修正
-                type: 'DELETE',
-                success: function(result) {
-                    if (result.success) {
-                        // フェードアウトして行を削除
-                        productRow.fadeOut(300, function() {
-                            $(this).remove();
-                        });
-                    } else {
-                        alert('削除に失敗しました。');
+    // 削除ボタンにイベントリスナーをバインドする関数
+    function bindDeleteButtons() {
+        $('.button-delete').off('click').on('click', function(e) {
+            e.preventDefault();
+            var productId = $(this).data('id');
+            console.log('削除ボタンがクリックされました。商品ID:', productId);
+            if (!productId) {
+                alert('商品IDが見つかりません。');
+                return;
+            }
+            var token = $('meta[name="csrf-token"]').attr('content');
+            var productRow = $(this).closest('tr');
+            if (confirm('この商品を削除してもよろしいですか？')) {
+                $.ajax({
+                    url: '/cytech_test/public/product/destroy/' + productId,
+                    type: 'DELETE',
+                    data: {
+                        "_token": token,
+                    },
+                    success: function(result) {
+                        if (result.success) {
+                            productRow.fadeOut(400, function() {
+                                $(this).remove();
+                            });
+                            alert('商品が正常に削除されました。');
+                        } else {
+                            alert('削除中にエラーが発生しました。');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var errorMessage = xhr.responseJSON ? xhr.responseJSON.exception : '削除中にエラーが発生しました。';
+                        alert(errorMessage);
                     }
-                },
-                error: function(xhr) {
-                    // より詳細なエラーメッセージの取得
-                    var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? 
-                                    xhr.responseJSON.error : 
-                                    '削除中にエラーが発生しました。';
-                    alert(errorMessage);
-                }
-            });
-        
+                }).catch(function(e) {
+                    console.error("AJAX request failed: ", e.message);
+                    alert("AJAX request failed: " + e.message);
+                });
+            }
+        });
+    }
+
+    // 初期バインド
+    bindDeleteButtons();
+
+    // 検索フォームの送信イベントに対する処理
+    $('#searchForm').on('submit', function(e) {
+        e.preventDefault();
+        if (!validateForm()) {
+            return;
+        }
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'GET',
+            data: $(this).serialize(),
+            success: function(response) {
+                $('#products-container').html(response);
+                bindDeleteButtons(); // 検索結果に対して再度バインド
+            },
+            error: function(xhr, status, error) {
+                alert('検索中にエラーが発生しました。');
+            }
+        });
     });
 });
+
 function validateForm() {
     let minPrice = document.getElementById('min_price').value;
     let maxPrice = document.getElementById('max_price').value;

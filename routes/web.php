@@ -31,9 +31,7 @@ Route::get('/edit/{id}', [App\Http\Controllers\ProductController::class, 'edit']
 
 Route::put('/Product/update/{id}', [App\Http\Controllers\ProductController::class, 'update'])->name('product.update')->middleware('auth');
 
-Route::post('/destroy/{id}', [App\Http\Controllers\ProductController::class, 'destroy'])->name('product.destroy');
-Route::delete('/destroy/{id}', [App\Http\Controllers\ProductController::class, 'destroy'])->name('product.destroy');
-
+Route::delete('/product/destroy/{id}', [App\Http\Controllers\ProductController::class, 'destroy'])->name('product.destroy');
 
 Auth::routes();
 
