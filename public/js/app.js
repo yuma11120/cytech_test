@@ -1,80 +1,4 @@
 $(document).ready(function() {
-    $('#companyForm').on('submit', function(e) {
-        e.preventDefault();  // 標準のフォーム送信をキャンセル
-
-        var formData = $(this).serialize();  // フォームのデータをシリアライズ
-
-        //問題なく検索機能は機能している。
-        $.ajax({
-            url: $(this).attr('action'),
-            type: 'GET',
-            data: formData,
-            success: function(data) {
-                $('#products-container').html(data);  // 部分ビューをコンテナにロード
-                $('#pagination-container .pagination').css({
-                'font-size': '12px',
-                'color': '#007bff'
-                });
-                console.log(data);
-            },
-            error: function(xhr, status, error) {
-                console.error("エラー発生:", error);
-            }
-        });
-    });
-});
-
-$(document).ready(function() {
-    $('th[data-sort]').each(function() {
-        $(this).data('clicks', 0);  // クリックカウンターの初期化
-    });
-
-    $('th[data-sort]').on('click', function() {
-        var table = $(this).closest('table');
-        var tbody = table.find('tbody');
-        var index = $(this).index();
-        var clicks = $(this).data('clicks') + 1;
-        $(this).data('clicks', clicks);
-
-        if (clicks === 3) {
-            // 3回クリックされたらソート解除
-            $(this).data('clicks', 0);  // カウンターをリセット
-            $('th').removeClass('asc desc');
-            tbody.find('tr').sort(function(a, b) {
-                return $(a).data('original-index') - $(b).data('original-index');
-            }).appendTo(tbody);
-            return;
-        }
-
-        var asc = clicks % 2 === 1;
-        var rows = tbody.find('tr').toArray().sort(function(a, b) {
-            var valA = getCellValue(a, index);
-            var valB = getCellValue(b, index);
-            valA = $.isNumeric(valA) ? parseFloat(valA) : valA.toLowerCase();
-            valB = $.isNumeric(valB) ? parseFloat(valB) : valB.toLowerCase();
-            return (asc ? 1 : -1) * (valA < valB ? -1 : (valA > valB ? 1 : 0));
-        });
-
-        $.each(rows, function(index, row) {
-            tbody.append(row);
-        });
-
-        $('th').removeClass('asc desc');  // 他の列のソート状態をクリア
-        $(this).addClass(asc ? 'asc' : 'desc');
-    });
-
-    function getCellValue(row, index) {
-        return $(row).children('td').eq(index).text();
-    }
-
-    // 元の順序を保存
-    $('tbody tr').each(function(index, row) {
-        $(row).data('original-index', index);
-    });
-});
-
-$(document).ready(function() {
-    // 削除ボタンにイベントリスナーをバインドする関数
     function bindDeleteButtons() {
         $('.button-delete').off('click').on('click', function(e) {
             e.preventDefault();
@@ -115,35 +39,95 @@ $(document).ready(function() {
         });
     }
 
-    // 初期バインド
-    bindDeleteButtons();
+    function bindSortHeaders() {
+        $('th[data-sort]').each(function() {
+            $(this).data('clicks', 0);  // クリックカウンターの初期化
+        });
 
-    // 検索フォームの送信イベントに対する処理
-    $('#searchForm').on('submit', function(e) {
-        e.preventDefault();
-        if (!validateForm()) {
-            return;
+        $('th[data-sort]').off('click').on('click', function() {
+            var table = $(this).closest('table');
+            var tbody = table.find('tbody');
+            var index = $(this).index();
+            var clicks = $(this).data('clicks') + 1;
+            $(this).data('clicks', clicks);
+
+            if (clicks === 3) {
+                // 3回クリックされたらソート解除
+                $(this).data('clicks', 0);  // カウンターをリセット
+                $('th').removeClass('asc desc');
+                tbody.find('tr').sort(function(a, b) {
+                    return $(a).data('original-index') - $(b).data('original-index');
+                }).appendTo(tbody);
+                return;
+            }
+
+            var asc = clicks % 2 === 1;
+            var rows = tbody.find('tr').toArray().sort(function(a, b) {
+                var valA = getCellValue(a, index);
+                var valB = getCellValue(b, index);
+                valA = $.isNumeric(valA) ? parseFloat(valA) : valA.toLowerCase();
+                valB = $.isNumeric(valB) ? parseFloat(valB) : valB.toLowerCase();
+                return (asc ? 1 : -1) * (valA < valB ? -1 : (valA > valB ? 1 : 0));
+            });
+
+            $.each(rows, function(index, row) {
+                tbody.append(row);
+            });
+
+            $('th').removeClass('asc desc');  // 他の列のソート状態をクリア
+            $(this).addClass(asc ? 'asc' : 'desc');
+        });
+
+        function getCellValue(row, index) {
+            return $(row).children('td').eq(index).text();
         }
+
+        // 元の順序を保存
+        $('tbody tr').each(function(index, row) {
+            $(row).data('original-index', index);
+        });
+    }
+
+    function bindAll() {
+        bindDeleteButtons();
+        bindSortHeaders();
+    }
+
+    bindAll();
+
+    $('#companyForm').on('submit', function(e) {
+        e.preventDefault();
+        var formData = $(this).serialize();
         $.ajax({
             url: $(this).attr('action'),
             type: 'GET',
-            data: $(this).serialize(),
-            success: function(response) {
-                $('#products-container').html(response);
-                bindDeleteButtons(); // 検索結果に対して再度バインド
+            data: formData,
+            success: function(data) {
+                $('#products-container').html(data.html);
+                bindAll();
+                $('#pagination-container .pagination').css({
+                    'font-size': '12px',
+                    'color': '#007bff'
+                });
+                console.log(data);
             },
             error: function(xhr, status, error) {
-                alert('検索中にエラーが発生しました。');
+                console.error("エラー発生:", error);
             }
         });
     });
 });
 
-function validateForm() {
+
+
+
+function validateForm() {//一覧表示ページの検索
     let minPrice = document.getElementById('min_price').value;
     let maxPrice = document.getElementById('max_price').value;
     let minStock = document.getElementById('min_stock').value;
     let maxStock = document.getElementById('max_stock').value;
+
+
 
    // 価格の検証
     if ((minPrice || maxPrice) && (minPrice === "" || maxPrice === "")) {
@@ -169,3 +153,70 @@ function validateForm() {
 
     return true;  // すべての検証が通った場合、フォームを送信
 }
+
+$(document).ready(function() {
+    $('form').on('submit', function(e) {
+        var productName = $('#product_name_update').val().trim();
+        var price = $('#price_update').val().trim();
+        var stock = $('#stock_update').val().trim();
+        var imgPath = $('#img_path_update').val().trim();
+
+        if (!productName) {
+            alert('商品名を入力してください。');
+            e.preventDefault();
+            return;
+        }
+
+        if (!price) {
+            alert('価格を入力してください。');
+            e.preventDefault();
+            return;
+        }
+
+        if (!stock) {
+            alert('在庫数を入力してください。');
+            e.preventDefault();
+            return;
+        }
+
+        if (!imgPath) {
+            alert('画像を挿入してください。');
+            e.preventDefault();
+            return;
+        }
+    });
+});
+
+
+$(document).ready(function() {
+    $('#createProductForm').on('submit', function(e) {
+        var productName = $('#product_name').val();
+        var stock = $('#stock').val();
+        var price = $('#price').val();
+        var imgPath = $('#img_path').val();
+
+        if (!productName) {
+            alert('商品名を入力してください。');
+            e.preventDefault();
+            return;
+        }
+
+        if (!stock) {
+            alert('在庫数を入力してください。');
+            e.preventDefault();
+            return;
+        }
+
+        if (!price) {
+            alert('価格を入力してください。');
+            e.preventDefault();
+            return;
+        }
+
+        if (!imgPath) {
+            alert('画像を挿入してください。');
+            e.preventDefault();
+            return;
+        }
+    });
+});

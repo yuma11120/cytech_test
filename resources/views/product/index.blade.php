@@ -29,13 +29,14 @@
             @endif
             <h1 class = 'title'>商品一覧画面</h1>
             <div class="form">
-                <div class = 'formContent'>
+                <div class = 'formContent' >
                     <form action="{{ route('product.index') }}" id="keywordForm"  method="GET"><p>キーワード：</p>
                         <input type="search" name="keyword" placeholder="検索" class="input-text" />
                         <input type="submit" id="search" value="検索" class="input" />
                     </form>
                 </div>
                 <div class = 'formContent'>
+                    
                     <form id="companyForm" action="{{ route('product.index') }}" method="GET">
                         <p>メーカー名：</p>
                         <select name="company_id" class="select">
@@ -68,48 +69,9 @@
                 <button type="button" onclick="window.location='{{ route('product.index') }}'" class="">検索解除</button>
 
             </div>
-            <div id="products-container" >
-                <table class = 'table'>
-                    
-                    <thead class = 'header'>
-                        <tr>
-                            <th data-sort="id">ID</th>
-                            <th>商品画像</th>
-                            <th data-sort="name" aria-label="商品名でソート" role="button">商品名</th>
-                            <th data-sort="price">価格</th>
-                            <th data-sort="stock">在庫数</th>
-                            <th data-sort="company_name">メーカー名</th>
-                            <th><a href="{{ route('product.create') }}" class = 'button-create' >登録</a></th> 
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($products as $product)
-                            <tr>
-                                <td>{{ $product->id }}</td>
-                                <td><img src="{{ asset('images/' . $product->img_path) }}" alt="商品画像" style="width: 30px; "> <!-- 画像の幅を150pxに設定 -->
-                                <td>{{ $product->product_name }}</td>
-                                <td>{{ $product->price }}</td>
-                                <td>{{ $product->stock }}</td>
-                                <td>{{ $product->company->company_name }}</td>
-                                <td ><a href="{{ route('product.show', ['id'=>$product->id]) }}" class = 'detail'>詳細</a></td>
-                                <td>
-                                    <form action="{{ route('product.destroy', ['id'=>$product->id]) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="button-delete" type="submit" data-id="{{ $product->id }}">削除</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            <div id="products-container">
+                    @include('partials.product_table', ['products' => $products])
             </div>
-        </div>
-        @if ($products->count() > 0 && $products->total() > $products->perPage())
-            <div class = "pagination">
-                {{ $products->links() }}
-            </div>
-        @endif
+
     </body>
 </html>
