@@ -61,16 +61,5 @@
             <img src="/images/{{ Session::get('image') }}">
         @endif
     </div>
-    <script>
-        $(document).ready(function() {
-            $('#createProductForm').on('submit', function(e) {
-                var imgPath = $('#img_path').val();
-                if (!imgPath) {
-                    alert('画像を挿入してください。');
-                    e.preventDefault(); // フォームの送信を防ぐ
-                }
-            });
-        });
-    </script>
 </body>
 </html>

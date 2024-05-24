@@ -19,9 +19,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('/sales', [App\Http\Controllers\SaleController::class, 'purchase']);
-Route::get('/create', [App\Http\Controllers\SaleController::class, 'create']);
 
-//Route::middleware(['middleware' => 'api'])->group(function () {
-    Route::post('/sales', [App\Http\Controllers\SaleController::class, 'purchase']);
-    Route::get('/create', [App\Http\Controllers\SaleController::class, 'create']);
-//});

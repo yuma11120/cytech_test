@@ -1,4 +1,94 @@
 $(document).ready(function() {
+
+    console.log("Document ready");  // ドキュメントが読み込まれたことを確認
+
+    $('#keywordForm').on('submit', function(e) {
+        e.preventDefault();
+        console.log("Form submitted");  // フォームが送信されたことを確認
+
+        var formData = $(this).serialize();
+        console.log("Form data: ", formData);  // フォームデータを確認
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'GET',
+            data: formData,
+            success: function(response) {
+                console.log("AJAX success: ", response);  // AJAX成功時のレスポンスを確認
+                $('#products-container').html(response.html);
+                bindDeleteButtons();
+                
+                if (response.total <= 4) {
+                    $('.pagination').hide();
+                } else {
+                    $('.pagination').show();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX error: ", error);  // AJAXエラー時のメッセージを確認
+                alert('検索中にエラーが発生しました。');
+            }
+        });
+    });
+
+    $('#priceForm').on('submit', function(e) {
+        e.preventDefault();
+        console.log("Form submitted");  // フォームが送信されたことを確認
+
+        var formData = $(this).serialize();
+        console.log("Form data: ", formData);  // フォームデータを確認
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'GET',
+            data: formData,
+            success: function(response) {
+                console.log("AJAX success: ", response);  // AJAX成功時のレスポンスを確認
+                $('#products-container').html(response.html);
+                bindDeleteButtons();
+                
+                if (response.total <= 4) {
+                    $('.pagination').hide();
+                } else {
+                    $('.pagination').show();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX error: ", error);  // AJAXエラー時のメッセージを確認
+                alert('検索中にエラーが発生しました。');
+            }
+        });
+    });
+
+    $('#stockForm').on('submit', function(e) {
+        e.preventDefault();
+        console.log("Form submitted");  // フォームが送信されたことを確認
+
+        var formData = $(this).serialize();
+        console.log("Form data: ", formData);  // フォームデータを確認
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'GET',
+            data: formData,
+            success: function(response) {
+                console.log("AJAX success: ", response);  // AJAX成功時のレスポンスを確認
+                $('#products-container').html(response.html);
+                bindDeleteButtons();
+                
+                if (response.total <= 4) {
+                    $('.pagination').hide();
+                } else {
+                    $('.pagination').show();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX error: ", error);  // AJAXエラー時のメッセージを確認
+                alert('検索中にエラーが発生しました。');
+            }
+        });
+    });
+
     function bindDeleteButtons() {
         $('.button-delete').off('click').on('click', function(e) {
             e.preventDefault();
@@ -13,8 +103,9 @@ $(document).ready(function() {
             if (confirm('この商品を削除してもよろしいですか？')) {
                 $.ajax({
                     url: '/cytech_test/public/product/destroy/' + productId,
-                    type: 'DELETE',
+                    type: 'POST',
                     data: {
+                        '_method': 'delete',
                         "_token": token,
                     },
                     success: function(result) {
