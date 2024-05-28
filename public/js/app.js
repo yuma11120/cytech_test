@@ -2,6 +2,55 @@ $(document).ready(function() {
 
     console.log("Document ready");  // ドキュメントが読み込まれたことを確認
 
+    function bindSortHeaders() {
+        $('th[data-sort]').each(function() {
+            $(this).data('clicks', 0);  // クリックカウンターの初期化
+        });
+
+        $('th[data-sort]').off('click').on('click', function() {
+            var table = $(this).closest('table');
+            var tbody = table.find('tbody');
+            var index = $(this).index();
+            var clicks = $(this).data('clicks') + 1;
+            $(this).data('clicks', clicks);
+
+            if (clicks === 3) {
+                // 3回クリックされたらソート解除
+                $(this).data('clicks', 0);  // カウンターをリセット
+                $('th').removeClass('asc desc');
+                tbody.find('tr').sort(function(a, b) {
+                    return $(a).data('original-index') - $(b).data('original-index');
+                }).appendTo(tbody);
+                return;
+            }
+
+            var asc = clicks % 2 === 1;
+            var rows = tbody.find('tr').toArray().sort(function(a, b) {
+                var valA = getCellValue(a, index);
+                var valB = getCellValue(b, index);
+                valA = $.isNumeric(valA) ? parseFloat(valA) : valA.toLowerCase();
+                valB = $.isNumeric(valB) ? parseFloat(valB) : valB.toLowerCase();
+                return (asc ? 1 : -1) * (valA < valB ? -1 : (valA > valB ? 1 : 0));
+            });
+
+            $.each(rows, function(index, row) {
+                tbody.append(row);
+            });
+
+            $('th').removeClass('asc desc');  // 他の列のソート状態をクリア
+            $(this).addClass(asc ? 'asc' : 'desc');
+        });
+
+        function getCellValue(row, index) {
+            return $(row).children('td').eq(index).text();
+        }
+
+        // 元の順序を保存
+        $('tbody tr').each(function(index, row) {
+            $(row).data('original-index', index);
+        });
+    }
+
     $('#keywordForm').on('submit', function(e) {
         e.preventDefault();
         console.log("Form submitted");  // フォームが送信されたことを確認
@@ -16,7 +65,7 @@ $(document).ready(function() {
             success: function(response) {
                 console.log("AJAX success: ", response);  // AJAX成功時のレスポンスを確認
                 $('#products-container').html(response.html);
-                bindDeleteButtons();
+                bindAll(); // 変更：bindAll()を呼び出して、ソートと削除ボタンを再バインド
                 
                 if (response.total <= 4) {
                     $('.pagination').hide();
@@ -45,7 +94,7 @@ $(document).ready(function() {
             success: function(response) {
                 console.log("AJAX success: ", response);  // AJAX成功時のレスポンスを確認
                 $('#products-container').html(response.html);
-                bindDeleteButtons();
+                bindAll(); // 変更：bindAll()を呼び出して、ソートと削除ボタンを再バインド
                 
                 if (response.total <= 4) {
                     $('.pagination').hide();
@@ -74,7 +123,7 @@ $(document).ready(function() {
             success: function(response) {
                 console.log("AJAX success: ", response);  // AJAX成功時のレスポンスを確認
                 $('#products-container').html(response.html);
-                bindDeleteButtons();
+                bindAll(); // 変更：bindAll()を呼び出して、ソートと削除ボタンを再バインド
                 
                 if (response.total <= 4) {
                     $('.pagination').hide();
@@ -130,61 +179,15 @@ $(document).ready(function() {
         });
     }
 
-    function bindSortHeaders() {
-        $('th[data-sort]').each(function() {
-            $(this).data('clicks', 0);  // クリックカウンターの初期化
-        });
+    
 
-        $('th[data-sort]').off('click').on('click', function() {
-            var table = $(this).closest('table');
-            var tbody = table.find('tbody');
-            var index = $(this).index();
-            var clicks = $(this).data('clicks') + 1;
-            $(this).data('clicks', clicks);
-
-            if (clicks === 3) {
-                // 3回クリックされたらソート解除
-                $(this).data('clicks', 0);  // カウンターをリセット
-                $('th').removeClass('asc desc');
-                tbody.find('tr').sort(function(a, b) {
-                    return $(a).data('original-index') - $(b).data('original-index');
-                }).appendTo(tbody);
-                return;
-            }
-
-            var asc = clicks % 2 === 1;
-            var rows = tbody.find('tr').toArray().sort(function(a, b) {
-                var valA = getCellValue(a, index);
-                var valB = getCellValue(b, index);
-                valA = $.isNumeric(valA) ? parseFloat(valA) : valA.toLowerCase();
-                valB = $.isNumeric(valB) ? parseFloat(valB) : valB.toLowerCase();
-                return (asc ? 1 : -1) * (valA < valB ? -1 : (valA > valB ? 1 : 0));
-            });
-
-            $.each(rows, function(index, row) {
-                tbody.append(row);
-            });
-
-            $('th').removeClass('asc desc');  // 他の列のソート状態をクリア
-            $(this).addClass(asc ? 'asc' : 'desc');
-        });
-
-        function getCellValue(row, index) {
-            return $(row).children('td').eq(index).text();
+        function bindAll() {
+            bindDeleteButtons();
+            bindSortHeaders();
         }
 
-        // 元の順序を保存
-        $('tbody tr').each(function(index, row) {
-            $(row).data('original-index', index);
-        });
-    }
-
-    function bindAll() {
-        bindDeleteButtons();
-        bindSortHeaders();
-    }
-
-    bindAll();
+        bindAll();
+   
 
     $('#companyForm').on('submit', function(e) {
         e.preventDefault();
@@ -207,6 +210,8 @@ $(document).ready(function() {
             }
         });
     });
+
+    
 });
 
 
@@ -246,7 +251,7 @@ function validateForm() {//一覧表示ページの検索
 }
 
 $(document).ready(function() {
-    $('form').on('submit', function(e) {
+    $('updateForm').on('submit', function(e) {
         var productName = $('#product_name_update').val().trim();
         var price = $('#price_update').val().trim();
         var stock = $('#stock_update').val().trim();
@@ -311,3 +316,5 @@ $(document).ready(function() {
         }
     });
 });
+
+

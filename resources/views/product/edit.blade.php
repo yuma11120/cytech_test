@@ -10,7 +10,7 @@
     </head>
     <body class="antialiased">
         <div class="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center py-4 sm:pt-0">
-                        <form action="{{ route('product.update', ['id'=>$product->id]) }}" method = "post" class = 'form-container' enctype="multipart/form-data">
+                        <form action="{{ route('product.update', ['id'=>$product->id]) }}" method = "post" class = 'form-container' enctype="multipart/form-data" id = 'updateForm'>
                         @csrf
                         @method('PUT')
                         <h1>商品情報編集画面</h1> 
